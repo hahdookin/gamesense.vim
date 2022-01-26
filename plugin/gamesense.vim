@@ -14,27 +14,24 @@ set cpo&vim
 " Will expand to path/to/gamesense.vim/
 let s:root = expand("<sfile>:p:h:h")
 
-function! Probe(timer)
-    let newmode = mode()[0]
-    if char2nr(newmode) == 22 " Visual blockwise
-        let newmode = "b"
-    elseif newmode ==# "V" " Visual linewise
-        let newmode = "l"
+function EncodeMode(mode)
+    if char2nr(a:mode) == 22 " Visual blockwise
+        return "b"
+    elseif a:mode ==# "V" " Visual linewise
+        return "l"
+    else
+        return a:mode
     endif
-
-    let event_msg = job_start("node " . s:root . "/js/event.js " . newmode)
-    call job_stop(event_msg)
 endfunction
 
-function StartEventLoop(timer)
-    let timer = timer_start(250, 'Probe', {"repeat": -1})
+function! Probe(timer)
+    let channel = job_getchannel(g:server)
+    call ch_sendraw(channel, EncodeMode(mode()[0]) . "\n")
 endfunction
 
-function GameSenseInvoke()
-    let startup = job_start("node " . s:root . "/js/setup.js", {"close_cb": 'StartEventLoop'})
-endfunction
+let g:server = job_start("node " . s:root . "/js/event.js")
+let loop = timer_start(250, 'Probe', {"repeat": -1})
 
-call GameSenseInvoke()
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
