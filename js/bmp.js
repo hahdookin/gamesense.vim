@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const curdir = "C:\\Users\\19082\\.vim_runtime\\my_plugins\\gamesense.vim"
+//const curdir = __dirname;//"C:\\Users\\19082\\.vim_runtime\\my_plugins\\gamesense.vim";
 const rows = 40;
 const cols = 128;
 const bbp = 1;
@@ -25,26 +25,26 @@ function read_bmp(source) {
 
 const images = {};
 
-//const normalbmp = fs.readFileSync(path.resolve("./bmps/normal.bmp"));
-const normalbmp = fs.readFileSync(curdir + "/bmps/normal.bmp");
+//const normalbmp = fs.readFileSync(curdir + "\\bmps\\normal.bmp");
+const normalbmp = fs.readFileSync(path.resolve(__dirname, "..\\bmps\\normal.bmp"));
 images["NORMAL"] = read_bmp(normalbmp);
 
-const insertbmp = fs.readFileSync(curdir + "/bmps/insert.bmp");
+const insertbmp = fs.readFileSync(path.resolve(__dirname, "..\\bmps\\insert.bmp"));
 images["INSERT"] = read_bmp(insertbmp);
 
-const replacebmp = fs.readFileSync(curdir + "/bmps/replace.bmp");
+const replacebmp = fs.readFileSync(path.resolve(__dirname, "..\\bmps\\replace.bmp"));
 images["REPLACE"] = read_bmp(replacebmp);
 
-const visualbmp = fs.readFileSync(curdir + "/bmps/visual.bmp");
+const visualbmp = fs.readFileSync(path.resolve(__dirname, "..\\bmps\\visual.bmp"));
 images["VISUAL"] = read_bmp(visualbmp);
 
-const vlinebmp = fs.readFileSync(curdir + "/bmps/vline.bmp");
+const vlinebmp = fs.readFileSync(path.resolve(__dirname, "..\\bmps\\vline.bmp"));
 images["V-LINE"] = read_bmp(vlinebmp);
 
-const vblockbmp = fs.readFileSync(curdir + "/bmps/vblock.bmp");
+const vblockbmp = fs.readFileSync(path.resolve(__dirname, "..\\bmps\\vblock.bmp"));
 images["V-BLOCK"] = read_bmp(vblockbmp);
 
-const terminalbmp = fs.readFileSync(curdir + "/bmps/terminal.bmp");
+const terminalbmp = fs.readFileSync(path.resolve(__dirname, "..\\bmps\\terminal.bmp"));
 images["TERMINAL"] = read_bmp(terminalbmp);
 
 exports.images = images;
