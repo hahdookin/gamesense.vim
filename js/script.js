@@ -3,16 +3,30 @@ const fs = require('fs');
 const { images } = require('./bmp');
 
 // Paths of coreProps.json
-const osx_path = "/Library/Application Support/SteelSeries Engine 3/coreProps.json";
+const mac_path = "/Library/Application Support/SteelSeries Engine 3/coreProps.json";
 const windows_path = "C:\\ProgramData\\SteelSeries\\SteelSeries Engine 3\\coreProps.json";
 
-if (!fs.existsSync(windows_path)) {
-    console.log(windows_path + " does not exist");
+const platform = process.platform;
+let path;
+switch (platform) {
+    case 'win32':
+        path = windows_path;
+        break;
+    case 'darwin':
+        path = mac_path;
+        break;
+    default:
+        console.log(`Sorry, ${platform} is not supported.`);
+        process.exit(1);
+}
+
+if (!fs.existsSync(path)) {
+    console.log("Couldn't find coreProps.json: " + path + " does not exist");
     process.exit(1);
 }
 
 // Grab port from coreProps.json
-const address = JSON.parse(fs.readFileSync(windows_path))["address"];
+const address = JSON.parse(fs.readFileSync(path))["address"];
 const port = address.substring(address.indexOf(":") + 1);
 
 function send_put_request(endpoint, obj) {
