@@ -14,10 +14,12 @@ const modes = [
     "VISUAL",
     "V-LINE",
     "V-BLOCK",
-    "TERMINAL"
+    "TERMINAL",
+    "COMMAND"
 ];
 
 async function fire_events(cur_mode) {
+    // Disable all other events
     for (const m of modes) {
         if (m == cur_mode) continue
         await game_event("VIM", m, {
@@ -27,6 +29,7 @@ async function fire_events(cur_mode) {
         });
     }
 
+    // Finally, fire the current event
     await game_event("VIM", cur_mode, {
         "data": {
             "value" : 1,
@@ -58,6 +61,9 @@ rl.on('line', line => {
             break;
         case 't':
             mode = "TERMINAL";
+            break;
+        case 'c':
+            mode = "COMMAND";
             break;
         default:
             mode = "NORMAL";

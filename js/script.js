@@ -115,6 +115,7 @@ async function setupAll() {
     await bind_mode_change_event("V-LINE", [0xf2, 0xc6, 0x8a]);
     await bind_mode_change_event("V-BLOCK", [0xf2, 0xc6, 0x8a]);
     await bind_mode_change_event("TERMINAL", [0x8a, 0xc6, 0xf2]);
+    await bind_mode_change_event("COMMAND", [0x8a, 0xc6, 0xf2]);
 }
 
 

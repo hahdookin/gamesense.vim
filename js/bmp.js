@@ -25,7 +25,6 @@ function read_bmp(source) {
 
 const images = {};
 
-//const normalbmp = fs.readFileSync(curdir + "\\bmps\\normal.bmp");
 const normalbmp = fs.readFileSync(path.resolve(__dirname, "..\\bmps\\normal.bmp"));
 images["NORMAL"] = read_bmp(normalbmp);
 
@@ -46,6 +45,9 @@ images["V-BLOCK"] = read_bmp(vblockbmp);
 
 const terminalbmp = fs.readFileSync(path.resolve(__dirname, "..\\bmps\\terminal.bmp"));
 images["TERMINAL"] = read_bmp(terminalbmp);
+
+const commandbmp = fs.readFileSync(path.resolve(__dirname, "..\\bmps\\command.bmp"));
+images["COMMAND"] = read_bmp(commandbmp);
 
 exports.images = images;
 
