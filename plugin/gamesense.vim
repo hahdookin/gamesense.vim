@@ -31,7 +31,7 @@ function StartEventLoop(timer)
 endfunction
 
 function GameSenseInvoke()
-    let startup = job_start("node " . s:root . "/js/startup.js", {"close_cb": 'StartEventLoop'})
+    let startup = job_start("node " . s:root . "/js/setup.js", {"close_cb": 'StartEventLoop'})
 endfunction
 
 call GameSenseInvoke()
