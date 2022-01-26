@@ -15,7 +15,7 @@ if (!fs.existsSync(windows_path)) {
 const address = JSON.parse(fs.readFileSync(windows_path))["address"];
 const port = address.substring(address.indexOf(":") + 1);
 
-async function send_put_request(endpoint, obj) {
+function send_put_request(endpoint, obj) {
     obj = JSON.stringify(obj);
     const options = {
         hostname: "localhost",
@@ -26,41 +26,40 @@ async function send_put_request(endpoint, obj) {
             'Content-Type': 'application/json',
         }
     };
-    const req = http.request(options, res => {
-        console.log("STATUS CODE: " + res.statusCode);
-        console.log();
-        res.on('data', d => process.stdout.write(d));
-    });
+    return new Promise((resolve, reject) => {
+        const req = http.request(options, res => {
+            if (res.statusCode < 200 || res.statusCode >= 300)
+                return reject(new Error("statusCode=" + res.statusCode))
 
-    req.on('error', e => {
-        console.log("ERROR" + e);
-        console.log();
+            let body = [];
+            res.on('data', d => {
+                body.push(d);
+            });
+            res.on('end', () => {
+                try {
+                    body = JSON.parse(Buffer.concat(body).toString());
+                } catch(e) {
+                    reject(e);
+                }
+                resolve(body);
+            });
+        });
+        req.on('error', err => {
+            reject(err);
+        });
+        req.write(obj);
+        req.end();
     });
-
-    req.write(obj);
-    return req.end();
 }
 
 async function register_game(game, display_name, developer) {
-    await send_put_request("game_metadata", {
+    const res = await send_put_request("game_metadata", {
         "game": game,
         "game_display_name": display_name,
         "developer": developer
     });
 }
 
-async function remove_game(game) {
-    await send_put_request("remove_game", {
-        "game": game
-    });
-}
-async function register_game_event(game, event, obj) {
-    await send_put_request("register_game_event", {
-        "game": game,
-        "event": event,
-        ...obj
-    });
-}
 async function game_event(game, event, obj) {
     await send_put_request("game_event", {
         "game": game,
@@ -69,7 +68,7 @@ async function game_event(game, event, obj) {
     });
 }
 async function bind_game_event(game, event, obj) {
-    await send_put_request("bind_game_event", {
+    const res = await send_put_request("bind_game_event", {
         "game": game,
         "event": event,
         ...obj
@@ -77,11 +76,10 @@ async function bind_game_event(game, event, obj) {
 }
 
 async function bind_mode_change_event(mode, rgb) {
-    console.log("Binding " + mode);
     const [r, g, b] = rgb;
     await bind_game_event("VIM", mode.toUpperCase(), {
         "handlers": [
-            // Light up function keys
+            // Light up function keys handler
             {
                 "device-type": "keyboard",
                 "zone": "function-keys",
@@ -92,7 +90,7 @@ async function bind_mode_change_event(mode, rgb) {
                 },
                 "mode": "color",
             },
-            // Draw mode bitmap to OLED
+            // Draw mode bitmap to OLED handler
             {
                 "device-type": "screened-128x40",
                 "mode": "screen",
@@ -107,7 +105,6 @@ async function bind_mode_change_event(mode, rgb) {
 }
 
 async function setupAll() {
-    console.log("registering game");
     await register_game("VIM", "(N)Vim", "Christopher Pane");
 
     // Bind event handlers for modes
