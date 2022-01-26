@@ -8,30 +8,52 @@ if exists("g:loaded_gamesense")
 endif
 let g:loaded_gamesense = 1
 
+if !has("timers") || !has("channel") || !has("job")
+    echoe "gamesense.vim requires Vim with +timers, +channel, +job"
+    finish
+endif
+
 let s:save_cpo = &cpo
 set cpo&vim
 
 " Will expand to path/to/gamesense.vim/
 let s:root = expand("<sfile>:p:h:h")
 
-function EncodeMode(mode)
-    if char2nr(a:mode) == 22 " Visual blockwise
+" Returns a special value from the result of mode()[0]
+" that the server knows how to deal with.
+" n -> n
+" i -> i
+" R -> R
+" v -> v
+" V -> l
+" nr2char(22) -> b
+" c -> c
+" t -> t
+function EncodedMode()
+    let l:mode = mode()[0]
+    if char2nr(l:mode) == 22 " Visual blockwise
         return "b"
-    elseif a:mode ==# "V" " Visual linewise
+    elseif l:mode ==# "V" " Visual linewise
         return "l"
     else
-        return a:mode
+        return l:mode
     endif
 endfunction
 
-function! Probe(timer)
-    let channel = job_getchannel(g:server)
-    call ch_sendraw(channel, EncodeMode(mode()[0]) . "\n")
+" Send the current mode to the server
+function! Probe(channel)
+    call ch_sendraw(a:channel, EncodedMode() . "\n")
 endfunction
 
-let g:server = job_start("node " . s:root . "/js/event.js")
-let loop = timer_start(250, 'Probe', {"repeat": -1})
+" Start the server and get the channel
+let s:server = job_start("node " . s:root . "/js/event.js")
+let s:channel = job_getchannel(s:server)
 
+" Run loop indefinitely
+let s:loop = timer_start(
+                \ 250, 
+                \ {-> execute("call Probe(s:channel)")}, 
+                \ {"repeat": -1})
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
