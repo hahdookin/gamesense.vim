@@ -1,5 +1,5 @@
 const readline = require('readline');
-const { game_event } = require("./script");
+const { game_event, bind_mode_change_event } = require("./script");
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -37,8 +37,28 @@ async function fire_events(cur_mode) {
     })
 }
 
+// #123456 -> [0x12, 0x34, 0x56]
+function hexstring_to_bytes(hexstring) {
+    if (hexstring.startsWith('#'))
+        hexstring = hexstring.substring(1);
+    return [
+        Number.parseInt("0x" + hexstring.substring(0, 2)),
+        Number.parseInt("0x" + hexstring.substring(2, 4)),
+        Number.parseInt("0x" + hexstring.substring(4, 6)),
+    ];
+}
+
 
 rl.on('line', line => {
+
+    // Option setting messages start with '_'
+    // i.e. _INSERT=#123456
+    if (line.startsWith("_")) {
+        line = line.substring(1);
+        let [mode, color] = line.split('=');
+        bind_mode_change_event(mode, hexstring_to_bytes(color));
+        return;
+    }
     let mode = "NORMAL";
     switch (line.trim()[0]) {
         case 'n':
