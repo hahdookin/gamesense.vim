@@ -135,3 +135,4 @@ async function setupAll() {
 
 exports.setupAll = setupAll;
 exports.game_event = game_event;
+exports.bind_mode_change_event = bind_mode_change_event;
