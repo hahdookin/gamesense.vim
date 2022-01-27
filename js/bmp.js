@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-//const curdir = __dirname;//"C:\\Users\\19082\\.vim_runtime\\my_plugins\\gamesense.vim";
 const rows = 40;
 const cols = 128;
 const bbp = 1;
