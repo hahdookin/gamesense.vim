@@ -72,14 +72,16 @@ async function register_game(game, display_name, developer) {
         "game_display_name": display_name,
         "developer": developer
     });
+    return res;
 }
 
 async function game_event(game, event, obj) {
-    await send_put_request("game_event", {
+    const res = await send_put_request("game_event", {
         "game": game,
         "event": event,
         ...obj
     });
+    return res;
 }
 async function bind_game_event(game, event, obj) {
     const res = await send_put_request("bind_game_event", {
@@ -87,11 +89,12 @@ async function bind_game_event(game, event, obj) {
         "event": event,
         ...obj
     });
+    return res;
 }
 
 async function bind_mode_change_event(mode, rgb) {
     const [r, g, b] = rgb;
-    await bind_game_event("VIM", mode.toUpperCase(), {
+    const res = await bind_game_event("VIM", mode.toUpperCase(), {
         "handlers": [
             // Light up function keys handler
             {
@@ -116,6 +119,7 @@ async function bind_mode_change_event(mode, rgb) {
             }
         ]
     });
+    return res;
 }
 
 async function setupAll() {
