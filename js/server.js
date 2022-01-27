@@ -90,7 +90,7 @@ rl.on('line', line => {
         //     mode = "NORMAL";
     }
     fire_events(mode)
-    .then(res => process.stdout.write(res.toString() + "\n"))
-    .catch(err => process.stdout.write("ERROR" + "\n"));
+        .then(res => process.stdout.write(res.toString() + "\n"))
+        .catch(err => process.stdout.write("ERROR" + "\n"));
 });
 

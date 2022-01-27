@@ -136,7 +136,6 @@ async function setupAll() {
     await bind_mode_change_event("COMMAND", [0x8a, 0xc6, 0xf2]);
 }
 
-
 exports.setupAll = setupAll;
 exports.game_event = game_event;
 exports.bind_mode_change_event = bind_mode_change_event;

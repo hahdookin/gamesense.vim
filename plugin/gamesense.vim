@@ -27,6 +27,8 @@ set cpo&vim
 
 let g:gamesense_update_rate = 250
 
+let g:gamesense_OLED_dimensions = "128x40"
+
 let g:gamesense_colors = {}
 let g:gamesense_colors["NORMAL"]   = "#8ac6f2"
 let g:gamesense_colors["INSERT"]   = "#95e454"
@@ -39,6 +41,8 @@ let g:gamesense_colors["COMMAND"]  = g:gamesense_colors["NORMAL"]
 
 " Will expand to path/to/gamesense.vim/
 let s:root = expand("<sfile>:p:h:h")
+let s:setup_cmd = "node " . s:root . "/js/setup.js"
+let s:server_cmd = "node " . s:root . "/js/server.js"
 
 " Returns a special value from the result of mode()[0]
 " that the server knows how to deal with.
@@ -72,24 +76,32 @@ function! SendOptions(channel)
     endfor
 endfunction
 
-" Start the server and get the channel
-let s:server = job_start("node " . s:root . "/js/server.js")
-let s:channel = job_getchannel(s:server)
-
-" call ch_sendraw(s:channel, "n" . "\n")
-" let res = ch_read(s:channel)
-" if res ==# "ERROR"
-"     " Normal event doesn't exist, run setup
-"     echo "STARTUP HERE"
-" endif
-
-call SendOptions(s:channel)
-
-" Run loop indefinitely
-let s:loop = timer_start(
+function! StartLoop()
+    " Run loop indefinitely
+    let s:loop = timer_start(
                 \ g:gamesense_update_rate, 
-                \ {-> execute("call Probe(s:channel)")}, 
+                \ {-> execute("call Probe(s:server_channel)")}, 
                 \ {"repeat": -1})
+endfunction
+
+" Start the server and get the channel
+let s:server = job_start(s:server_cmd)
+let s:server_channel = job_getchannel(s:server)
+
+" Probe the server to see if Vim is registered
+call Probe(s:server_channel)
+let server_response = ch_read(s:server_channel)
+if server_response ==# "ERROR"
+    " Normal event doesn't exist, run setup
+    let s:setup = job_start(
+                 \ s:setup_cmd, 
+                 \ {"exit_cb": {-> execute("call StartLoop()")}})
+else
+    "call SendOptions(s:server_channel)
+    call StartLoop()
+endif
+
+
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
