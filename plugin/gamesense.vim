@@ -8,6 +8,11 @@ if exists("g:loaded_gamesense")
 endif
 let g:loaded_gamesense = 1
 
+if !executable("node")
+    echoe "gamesense.vim requires Node.JS"
+    finish
+endif
+
 if !has("timers") || !has("channel") || !has("job")
     echoe "gamesense.vim requires Vim with +timers, +channel, +job"
     finish
@@ -15,6 +20,22 @@ endif
 
 let s:save_cpo = &cpo
 set cpo&vim
+
+""""""""""""""""""""""""""
+" Options
+""""""""""""""""""""""""""
+
+let g:gamesense_update_rate = 250
+
+let g:gamesense_colors = {}
+let g:gamesense_colors["NORMAL"]   = "#8ac6f2"
+let g:gamesense_colors["INSERT"]   = "#95e454"
+let g:gamesense_colors["REPLACE"]  = "#eb4f3f"
+let g:gamesense_colors["VISUAL"]   = "#f2c68a"
+let g:gamesense_colors["V-LINE"]   = g:gamesense_colors["VISUAL"]
+let g:gamesense_colors["V-BLOCK"]  = g:gamesense_colors["VISUAL"]
+let g:gamesense_colors["TERMINAL"] = g:gamesense_colors["INSERT"]
+let g:gamesense_colors["COMMAND"]  = g:gamesense_colors["NORMAL"]
 
 " Will expand to path/to/gamesense.vim/
 let s:root = expand("<sfile>:p:h:h")
@@ -45,13 +66,21 @@ function! Probe(channel)
     call ch_sendraw(a:channel, EncodedMode() . "\n")
 endfunction
 
+function! SendOptions(channel)
+    for [key, value] in items(g:gamesense_colors)
+        call ch_sendraw(a:channel, "_" . key . "=" . value . "\n")
+    endfor
+endfunction
+
 " Start the server and get the channel
-let s:server = job_start("node " . s:root . "/js/event.js")
+let s:server = job_start("node " . s:root . "/js/server.js")
 let s:channel = job_getchannel(s:server)
+
+call SendOptions(s:channel)
 
 " Run loop indefinitely
 let s:loop = timer_start(
-                \ 250, 
+                \ g:gamesense_update_rate, 
                 \ {-> execute("call Probe(s:channel)")}, 
                 \ {"repeat": -1})
 
