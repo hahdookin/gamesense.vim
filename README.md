@@ -9,7 +9,7 @@
 
 ## Installation
 Install with a plugin manager:
-```
+```vim
 Plug 'hahdookin/gamesense.vim'
 ```
 
@@ -18,7 +18,14 @@ Plug 'hahdookin/gamesense.vim'
 - Draw current mode to OLED (Currently only for 128x40 pixel OLEDs)
 
 ## Why Node is required
-Interaction with SteelSeries GameSense occurs through http POST requests. As far as I know, Vim does not have any API for sending http requests natively. When the plugin is invoked, a Node.JS server is created in the background and awaits messages from Vim. The plugin will send a message to the server periodically and the server will fire the event to the SteelSeries GameSense product.
+Interaction with SteelSeries GameSense occurs through HTTP POST requests. As far as I know, Vim does not have any API for sending HTTP requests natively. 
+
+When the plugin is invoked, a Node.JS server is created in the background and awaits messages from Vim. The plugin will send a message to the server periodically and the server will post the event to the SteelSeries GameSense product.
+```
++-----+     +-----------+     +-----------+
+| Vim | --> | server.js | --> | GameSense |
++-----+     +-----------+     +-----------+
+```
 
 ## Plans
 - [ ] User options
