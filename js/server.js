@@ -30,11 +30,12 @@ async function fire_events(cur_mode) {
     }
 
     // Finally, fire the current event
-    await game_event("VIM", cur_mode, {
+    const promise = await game_event("VIM", cur_mode, {
         "data": {
             "value" : 1,
         }
     })
+    return promise;
 }
 
 // #123456 -> [0x12, 0x34, 0x56]
@@ -59,7 +60,7 @@ rl.on('line', line => {
         bind_mode_change_event(mode, hexstring_to_bytes(color));
         return;
     }
-    let mode = "NORMAL";
+    let mode = "x";
     switch (line.trim()[0]) {
         case 'n':
             mode = "NORMAL";
@@ -85,9 +86,11 @@ rl.on('line', line => {
         case 'c':
             mode = "COMMAND";
             break;
-        default:
-            mode = "NORMAL";
+        // default:
+        //     mode = "NORMAL";
     }
-    fire_events(mode);
+    fire_events(mode)
+    .then(res => process.stdout.write(res.toString() + "\n"))
+    .catch(err => process.stdout.write("ERROR" + "\n"));
 });
 

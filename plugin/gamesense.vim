@@ -76,6 +76,13 @@ endfunction
 let s:server = job_start("node " . s:root . "/js/server.js")
 let s:channel = job_getchannel(s:server)
 
+" call ch_sendraw(s:channel, "n" . "\n")
+" let res = ch_read(s:channel)
+" if res ==# "ERROR"
+"     " Normal event doesn't exist, run setup
+"     echo "STARTUP HERE"
+" endif
+
 call SendOptions(s:channel)
 
 " Run loop indefinitely

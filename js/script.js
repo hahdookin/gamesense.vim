@@ -43,7 +43,7 @@ function send_put_request(endpoint, obj) {
     return new Promise((resolve, reject) => {
         const req = http.request(options, res => {
             if (res.statusCode < 200 || res.statusCode >= 300)
-                return reject(new Error("statusCode=" + res.statusCode))
+                return reject(new Error("FAILED: " + res.statusCode));
 
             let body = [];
             res.on('data', d => {
