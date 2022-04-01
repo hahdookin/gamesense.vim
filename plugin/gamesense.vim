@@ -1,5 +1,5 @@
 " Vim plugin for interacting with SteelSeries Gamesense products
-" Last Change: 2022 Jan 25
+" Last Change: 2022 Apr 1
 " Maintainer:  Christopher Pane <ChrisPaneCS@gmail.com>
 " License:     This file is placed in the public domain.
 
@@ -21,13 +21,13 @@ endif
 let s:save_cpo = &cpo
 set cpo&vim
 
-""""""""""""""""""""""""""
+"=========================
 " Options
-""""""""""""""""""""""""""
+"=========================
 
 let g:gamesense_update_rate = 250
 
-let g:gamesense_OLED_dimensions = "128x40"
+let g:gamesense_OLED_dimensions = {"w": 128, "h": 40}
 
 let g:gamesense_colors = {}
 let g:gamesense_colors["NORMAL"]   = "#8ac6f2"
@@ -51,7 +51,7 @@ let s:server_cmd = "node " . s:root . "/js/server.js"
 " R -> R
 " v -> v
 " V -> l
-" nr2char(22) -> b
+" byte(22) -> b
 " c -> c
 " t -> t
 function EncodedMode()
@@ -65,8 +65,15 @@ function EncodedMode()
     endif
 endfunction
 
+" Run the setup 
+function InitGameSense()
+    let s:setup = job_start(
+                 \ s:setup_cmd, 
+                 \ {"exit_cb": function('StartLoop')})
+endfunction
+
 " Send the current mode to the server
-function! Probe(channel)
+function! SendMessage(channel)
     call ch_sendraw(a:channel, EncodedMode() . "\n")
 endfunction
 
@@ -76,11 +83,11 @@ function! SendOptions(channel)
     endfor
 endfunction
 
+" Run loop indefinitely
 function! StartLoop()
-    " Run loop indefinitely
     let s:loop = timer_start(
                 \ g:gamesense_update_rate, 
-                \ {-> execute("call Probe(s:server_channel)")}, 
+                \ {-> execute("call SendMessage(s:server_channel)")}, 
                 \ {"repeat": -1})
 endfunction
 
@@ -88,20 +95,10 @@ endfunction
 let s:server = job_start(s:server_cmd)
 let s:server_channel = job_getchannel(s:server)
 
-" Probe the server to see if Vim is registered
-call Probe(s:server_channel)
-let server_response = ch_read(s:server_channel)
-if server_response ==# "ERROR"
-    " Normal event doesn't exist, run setup
-    let s:setup = job_start(
-                 \ s:setup_cmd, 
-                 \ {"exit_cb": function('StartLoop')})
-else
-    "call SendOptions(s:server_channel)
-    call StartLoop()
-endif
+au VimEnter * call StartLoop()
 
-
+command! GameSenseInit call InitGameSense()
+command! GameSenseSendOptions call SendOptions(s:server_channel)
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
