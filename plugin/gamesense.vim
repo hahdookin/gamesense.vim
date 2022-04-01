@@ -95,7 +95,7 @@ if server_response ==# "ERROR"
     " Normal event doesn't exist, run setup
     let s:setup = job_start(
                  \ s:setup_cmd, 
-                 \ {"exit_cb": {-> execute("call StartLoop()")}})
+                 \ {"exit_cb": function('StartLoop')})
 else
     "call SendOptions(s:server_channel)
     call StartLoop()
